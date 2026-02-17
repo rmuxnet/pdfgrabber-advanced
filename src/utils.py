@@ -4,9 +4,15 @@ from tinydb import TinyDB, Query
 from hashlib import sha256
 from pathlib import Path
 import os
-import config
+import importlib
+import fitz
+from tinydb import TinyDB, Query
+from hashlib import sha256
+from pathlib import Path
+import os
+from . import config
 
-os.chdir(Path(__file__).parent)
+# os.chdir(Path(__file__).parent) # Removed in refactor
 
 config = config.getconfig()
 
@@ -21,9 +27,9 @@ oneshots = {"gnt": "mydBook Giunti TVP", "apb": "AppBook"}
 
 def getservice(name, oneshot=False):
 	if oneshot:
-		service = importlib.import_module("services.oneshot." + name)
+		service = importlib.import_module("src.services.oneshot." + name)
 	else:
-		service = importlib.import_module("services." + name)
+		service = importlib.import_module("src.services." + name)
 	return service
 
 def login(servicename, username, password):
