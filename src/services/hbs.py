@@ -1,7 +1,7 @@
 import requests
 import fitz
-import lib
-import config
+from .. import lib
+from .. import config
 from io import BytesIO
 import zipfile
 import tempfile

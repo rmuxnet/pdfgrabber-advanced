@@ -3,9 +3,9 @@ import requests
 from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
 import xml.etree.ElementTree as et
-import config
+from .. import config
 import fitz
-import lib
+from .. import lib
 
 service = "rfl"
 

@@ -8,8 +8,8 @@ from zipfile import ZipFile
 from playwright.sync_api import sync_playwright
 from pathlib import Path
 import re
-import lib
-import config
+from .. import lib
+from .. import config
 
 service = "snm"
 

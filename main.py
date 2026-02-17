@@ -1,4 +1,4 @@
-import utils
+from src import utils
 import sys
 import os
 import re
@@ -11,7 +11,8 @@ from rich.progress import Progress
 from rich.panel import Panel
 from rich.align import Align
 from rich import box
-import config
+from src import config
+from src.web.app import run_server
 
 if sys.platform == "win32":
 	sys.stdout.reconfigure(encoding='utf-8')
@@ -251,6 +252,11 @@ def main():
 	if not (sys.version_info.major >= 3 and sys.version_info.minor >= 10):
 		console.print(Panel("Python version 3.10 or greater is required!", style="bold red", title="Error"))
 		exit()
+	if len(sys.argv) > 1 and sys.argv[1] == "--web":
+		console.print(Panel("Starting WebUI at http://127.0.0.1:5000", style="bold green", title="WebUI"))
+		run_server()
+		return
+
 	showbanner = config.getboolean("pdfgrabber", "ShowBanner", fallback=True)
 	if showbanner:
 		console.print(Panel(Align.center(banner), style="green bold", subtitle="version 1.0"), highlight=False)

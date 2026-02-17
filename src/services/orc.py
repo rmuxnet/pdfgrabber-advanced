@@ -5,7 +5,7 @@ import fitz
 import requests
 from zipfile import ZipFile
 import services.olb as olb
-import config
+from .. import config
 
 service = "orc"
 

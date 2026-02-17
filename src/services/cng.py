@@ -11,10 +11,10 @@ from pathlib import Path
 from io import BytesIO
 from playwright.sync_api import sync_playwright
 from tempfile import TemporaryDirectory
-import lib
+from .. import lib
 import json
 import re
-import config
+from .. import config
 
 service = "cng"
 

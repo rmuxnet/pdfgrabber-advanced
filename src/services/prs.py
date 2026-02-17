@@ -16,11 +16,11 @@ from lxml import etree as et
 import requests
 import string
 import random
-import config
+from .. import config
 import time
 import json
 import fitz
-import lib
+from .. import lib
 import re
 
 service = "prs"

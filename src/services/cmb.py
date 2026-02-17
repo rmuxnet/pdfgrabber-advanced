@@ -14,7 +14,7 @@ import re
 import requests
 import fitz
 import time
-import lib
+from .. import lib
 
 key = b"thisIsASecretKey"
 salt_and_iv = b"humhanhindustani"

@@ -1,5 +1,5 @@
 import argparse
-import utils
+from src import utils
 import getpass
 
 services = utils.services.keys()

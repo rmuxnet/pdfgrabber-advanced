@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 import shutil
 
-os.chdir(Path(__file__).parent)
+# os.chdir(Path(__file__).parent) # Removed in refactor
 
 def getconfig():
 	config = configparser.ConfigParser()
