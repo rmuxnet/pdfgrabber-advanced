@@ -8,7 +8,13 @@ from rich.rule import Rule
 from rich.prompt import Prompt
 from rich.prompt import Confirm
 from rich.progress import Progress
+from rich.panel import Panel
+from rich.align import Align
+from rich import box
 import config
+
+if sys.platform == "win32":
+	sys.stdout.reconfigure(encoding='utf-8')
 
 console = Console()
 userid = False
@@ -42,17 +48,17 @@ def login():
 		checkpassword = config.getboolean("pdfgrabber", "AskPassword", fallback=False)
 		while not (userid := utils.new_login(username, password, checkpassword)):
 			if not first:
-				console.print("Invalid login!", style="red")
+				console.print(Panel("Invalid login!", style="red", title="Error"))
 				first = False
 			if checkpassword:
 				username = Prompt.ask("[b]pdfgrabber[/b] profile name")
 				password = Prompt.ask("[b]pdfgrabber[/b] profile password", password=True)
 			else:
 				username = Prompt.ask("Choose a [b]pdfgrabber[/b] profile to save credentials to", choices=users)
-	console.print(f"Profile [b]{username}[/b] chosen!", style="green")
+	console.print(Panel(f"Profile [b]{username}[/b] chosen!", style="green", title="Success"))
 
 def selectservice(services):
-	table = Table(title="Available services")
+	table = Table(title="Available services", box=box.ROUNDED, show_lines=True)
 	table.add_column("Code", style="cyan")
 	table.add_column("Name", style="green")
 
@@ -66,7 +72,7 @@ def selectservice(services):
 def managetokens():
 	if not userid:
 		login()
-	table = Table(title="Tokens")
+	table = Table(title="Tokens", box=box.ROUNDED, show_lines=True)
 	table.add_column("Service", style="cyan")
 	table.add_column("Token", style="green")
 
@@ -78,7 +84,7 @@ def managetokens():
 
 	servicenow = Prompt.ask("Choose a service to delete the token from", choices=utils.services.keys())
 	utils.deletetoken(servicenow, userid)
-	console.print(f"Token for [bold]{servicenow}[/bold] deleted!")
+	console.print(Panel(f"Token for [bold]{servicenow}[/bold] deleted!", style="green", title="Success"))
 
 def downloadbook():
 	global userid
@@ -110,15 +116,15 @@ def downloadbook():
 			password = Prompt.ask(f"[b]{servicename}[/b] password", password=True)
 			token = utils.login(service, username, password)
 			if token:
-				console.print(f"Logged in, your token is [bold green]{token}[/bold green]")
+				console.print(Panel(f"Logged in, your token is [bold green]{token}[/bold green]", title="Success", style="green"))
 			else:
-				console.print(f"Error: Unable to authenticate to [b]{servicename}[/b]", style="red")
+				console.print(Panel(f"Error: Unable to authenticate to [b]{servicename}[/b]", style="red", title="Error"))
 				return
 
 		with console.status("[bold green]Checking token...") as status:
 			check = utils.checktoken(service, token)
 			if not check:
-				console.print(f"[b]{servicename}[/b] log in generated an invalid token! Report this issue!", style="red")
+				console.print(Panel(f"[b]{servicename}[/b] log in generated an invalid token! Report this issue!", style="red", title="Error"))
 				return
 			else:
 				utils.addtoken(userid, service, token)
@@ -127,10 +133,10 @@ def downloadbook():
 		books = utils.library(service, token)
 
 	if not books:
-		console.print("No books!", style="bold red")
+		console.print(Panel("No books!", style="bold red", title="Error"))
 		return
 
-	table = Table(title=f"Available books for {servicename}")
+	table = Table(title=f"Available books for {servicename}", box=box.ROUNDED, show_lines=True)
 	table.add_column("Id", style="cyan")
 	table.add_column("Internal id", style="magenta")
 	table.add_column("Title", style="green")
@@ -182,7 +188,7 @@ def downloadbook():
 			pdfpath = utils.downloadbook(service, token, bookid, books[bookid], progressfun)
 			progress.update(maintask, description="Done", completed=100)
 
-		console.print(f"[bold green]Done![/bold green] Your book is in {pdfpath}")
+		console.print(Panel(f"[bold green]Done![/bold green] Your book is in {pdfpath}", title="Success", style="green"))
 
 def downloadoneshot():
 	if config.getboolean("pdfgrabber", "OneshotWarning", fallback=True):
@@ -197,7 +203,7 @@ def downloadoneshot():
 	first = True
 	while not re.fullmatch(urlmatch, url):
 		if not first:
-			console.print(f"Invalid url for {servicename}!", style="red")
+			console.print(Panel(f"Invalid url for {servicename}!", style="red", title="Error"))
 		url = Prompt.ask(f"[b]{servicename}[/b] url")
 
 	with Progress() as progress:
@@ -211,26 +217,26 @@ def downloadoneshot():
 		pdfpath = utils.downloadoneshot(service, url, progressfun)
 		progress.update(maintask, description="Done", completed=100)
 
-	console.print(f"[bold green]Done![/bold green] Your book is in {pdfpath}")
+	console.print(Panel(f"[bold green]Done![/bold green] Your book is in {pdfpath}", title="Success", style="green"))
 
 def register():
 	username = Prompt.ask("[b]pdfgrabber[/b] profile name")
 	password = Prompt.ask("[b]pdfgrabber[/b] profile password", password=True)
 	repeatpassword = Prompt.ask("Retype password", password=True)
 	if (password != repeatpassword):
-		console.print("Passwords do not match!", style="bold red")
+		console.print(Panel("Passwords do not match!", style="bold red", title="Error"))
 		exit()
 	utils.register(username, password)
-	console.print(f"Created profile {username}, now you can save credentials to it!", style="bold green")
+	console.print(Panel(f"Created profile {username}, now you can save credentials to it!", style="bold green", title="Success"))
 
 def logout():
 	global userid
 	userid = False
-	console.print("De-selected the current profile!", style="bold magenta")
+	console.print(Panel("De-selected the current profile!", style="bold magenta", title="Logged Out"))
 
 def books():
 	available = utils.listbooks()
-	table = Table(title="Books")
+	table = Table(title="Books", box=box.ROUNDED, show_lines=True)
 	table.add_column("Service", style="cyan")
 	table.add_column("Title", style="green")
 	table.add_column("Pages", style="magenta")
@@ -243,17 +249,28 @@ def books():
 
 def main():
 	if not (sys.version_info.major >= 3 and sys.version_info.minor >= 10):
-		console.print("Python version 3.10 or greater is required!", style="bold red")
+		console.print(Panel("Python version 3.10 or greater is required!", style="bold red", title="Error"))
 		exit()
 	showbanner = config.getboolean("pdfgrabber", "ShowBanner", fallback=True)
 	if showbanner:
-		console.print(center(banner), style="green bold", no_wrap=True, highlight=False)
-		console.print(Rule("version 1.0"))
+		console.print(Panel(Align.center(banner), style="green bold", subtitle="version 1.0"), highlight=False)
 	else:
 		console.print(Rule("pdfgrabber version 1.0"))
 
 	while True:
-		action = Prompt.ask("[magenta]What do you want to do?[/magenta] ((r)egister new profile, (d)ownload from your libraries, download from a (o)ne-shot link, (c)hange profile, manage (t)okens, (v)iew all books, (q)uit)", choices=["r", "d", "o", "c", "t", "v", "q"], default="d")
+		menu_text = """
+[bold magenta]What do you want to do?[/bold magenta]
+
+(r) Register new profile
+(d) Download from your libraries
+(o) Download from a one-shot link
+(c) Change profile
+(t) Manage tokens
+(v) View all books
+(q) Quit
+"""
+		console.print(Panel(menu_text, title="Menu", expand=False))
+		action = Prompt.ask("Select an option", choices=["r", "d", "o", "c", "t", "v", "q"], default="d")
 		match action:
 			case "r":
 				register()
@@ -269,10 +286,10 @@ def main():
 			case "v":
 				books()
 			case "q":
-				console.print("Bye!", style="bold green")
+				console.print(Panel("Bye!", style="bold green", title="Exit"))
 				exit()
 			case _:
-				console.print("Invalid action!", style="bold red")
+				console.print(Panel("Invalid action!", style="bold red", title="Error"))
 		console.print(Rule())
 
 if __name__ == '__main__':
