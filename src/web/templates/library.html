@@ -1,0 +1,43 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ service|upper }} Library</li>
+    </ol>
+</nav>
+
+<h1 class="mb-4">{{ service|upper }} Library</h1>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
+{% else %}
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for id, book in books.items() %}
+    <div class="col">
+        <div class="card h-100">
+            {% if book.cover %}
+            <img src="{{ book.cover }}" class="card-img-top" alt="{{ book.title }}"
+                style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="card-img-top bg-secondary text-white d-flex align-items-center justify-content-center"
+                style="height: 200px;">
+                <span>No Cover</span>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h6 class="card-title">{{ book.title }}</h6>
+                <small class="text-muted">ID: {{ id }}</small>
+            </div>
+            <div class="card-footer bg-transparent border-top-0">
+                <a href="#" class="btn btn-sm btn-outline-success w-100">Download</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

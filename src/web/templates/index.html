@@ -1,0 +1,18 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Services</h1>
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for service, module in services.items() %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title text-capitalize">{{ service }}</h5>
+                <p class="card-text">Download books from {{ service }}.</p>
+                <a href="/library/{{ service }}" class="btn btn-primary">Open Library</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
