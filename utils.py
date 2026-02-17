@@ -46,7 +46,9 @@ def downloadbook(servicename, token, bookid, data, progress):
 
 	metadata = {'producer': "PyMuPDF " + fitz.version[0], 'format': 'PDF 1.7', 'encryption': None, 'author': 'none', 'modDate': pdfnow, 'keywords': 'none', 'title': data["title"], 'creationDate': pdfnow, 'creator': "pdfgrabber1.0", 'subject': 'none'}
 	pdf.set_metadata(metadata)
-	progress(99, "Saving pdf")
+	coverpath = Path("files") / servicename / (f"{bookid}_cover.png")
+	pdf[0].get_pixmap().save(coverpath)
+	progress(99, f"Saving pdf and cover to {coverpath}")
 	if config.getboolean(servicename, "Compress", fallback=False):
 		pdf.save(pdfpath, garbage=config.getint(servicename, "Garbage", fallback=3), clean=config.getboolean(servicename, "Clean", fallback=True))
 	else:
@@ -72,7 +74,9 @@ def downloadoneshot(servicename, url, progress):
 
 	metadata = {'producer': "PyMuPDF " + fitz.version[0], 'format': 'PDF 1.7', 'encryption': None, 'author': author, 'modDate': pdfnow, 'keywords': 'none', 'title': title, 'creationDate': pdfnow, 'creator': "pdfgrabber1.0", 'subject': 'none'}
 	pdf.set_metadata(metadata)
-	progress(99, "Saving pdf")
+	coverpath = Path("files") / servicename / (f"{bookid}_cover.png")
+	pdf[0].get_pixmap().save(coverpath)
+	progress(99, f"Saving pdf and cover to {coverpath}")
 	if config.getboolean(servicename, "EzSave", fallback=True):
 		pdf.ez_save(pdfpath)
 	else:
