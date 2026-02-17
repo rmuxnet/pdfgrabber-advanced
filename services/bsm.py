@@ -88,6 +88,11 @@ def downloadbook(token, bookid, data, progress, baseurl=bsmart_baseurl):
 
 	progress(1, "Getting resources")
 	resources = getbookinfo(token, bookid, revision, "resources", baseurl)
+	if isinstance(resources, dict) and "message" in resources:
+		raise Exception(f"bSmart API Error: {resources['message']}")
+	if not isinstance(resources, list):
+		raise Exception(f"Unexpected response from bSmart API: {resources}")
+
 	assetpacks = getbookinfo(token, bookid, revision, "asset_packs", baseurl)
 	index = getbookinfo(token, bookid, revision, "index", baseurl)
 
