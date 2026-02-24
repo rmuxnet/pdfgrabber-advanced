@@ -5,3 +5,4 @@ db.json
 /src/__pycache__
 /src/services/__pycache__
 /src/web/__pycache__
+/src/services/oneshot/__pycache__
