@@ -1,0 +1,164 @@
+{% extends "layouts/base.html" %}
+
+{% block header_left %}
+<h1 class="text-lg font-semibold">Settings</h1>
+{% endblock %}
+
+{% block content %}
+<div x-data="settingsPage()" x-cloak>
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 animate-fade-up">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Configuration</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage settings for PDFGrabber and individual services. Changes are saved to <code class="text-xs font-mono bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">config.ini</code>.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span x-show="dirty" x-transition class="text-xs font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                Unsaved changes
+            </span>
+            <button @click="saveAll()"
+                    :disabled="saving"
+                    :class="saving ? 'opacity-60 cursor-wait' : 'hover:bg-brand-700'"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium transition-all shadow-md shadow-brand-500/20">
+                <svg x-show="!saving" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <svg x-show="saving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                <span x-text="saving ? 'Saving...' : 'Save Changes'"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-1 mb-6 overflow-x-auto scrollbar-thin pb-1 animate-fade-up-delay-1">
+        <template x-for="section in sectionOrder" :key="section">
+            <button @click="activeSection = section"
+                    :class="activeSection === section
+                        ? 'bg-brand-50 dark:bg-brand-950/50 text-brand-700 dark:text-brand-300 border-brand-200 dark:border-brand-800'
+                        : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:text-gray-900 dark:hover:text-gray-200'"
+                    class="px-4 py-2 rounded-xl border text-sm font-medium whitespace-nowrap transition-all duration-150 flex-shrink-0">
+                <span x-text="section === 'pdfgrabber' ? 'Global' : section === 'DEFAULT' ? 'Defaults' : section.toUpperCase()"></span>
+            </button>
+        </template>
+    </div>
+
+    <template x-for="section in sectionOrder" :key="section">
+        <div x-show="activeSection === section"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="animate-fade-up-delay-2">
+
+            <div class="flex items-center gap-3 mb-4">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    <span x-text="section === 'pdfgrabber' ? 'Global Settings' : section === 'DEFAULT' ? 'Default Service Settings' : section.toUpperCase() + ' Settings'"></span>
+                </h3>
+                <span x-show="section === 'DEFAULT'"
+                      class="px-2.5 py-1 rounded-lg text-[10px] font-semibold uppercase tracking-wider bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 ring-1 ring-amber-200/50 dark:ring-amber-800/50">
+                    Inherited by all services
+                </span>
+            </div>
+
+            <template x-if="section !== 'DEFAULT' && section !== 'pdfgrabber'">
+                <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">Service-specific overrides. Values here take precedence over defaults.</p>
+            </template>
+
+            <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800/50 overflow-hidden">
+                <template x-for="key in Object.keys(settings[section] || {})" :key="section + '-' + key">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-colors">
+                        <div class="flex-1 min-w-0">
+                            <label class="text-sm font-semibold text-gray-900 dark:text-gray-100" x-text="key"></label>
+                            <template x-if="getComment(section, key)">
+                                <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 max-w-lg" x-text="getComment(section, key)"></p>
+                            </template>
+                        </div>
+                        <div class="flex-shrink-0 sm:w-64">
+                            <template x-if="isBool(settings[section][key])">
+                                <button @click="toggleBool(section, key)"
+                                        :class="settings[section][key] === 'yes' ? 'bg-brand-600' : 'bg-gray-300 dark:bg-gray-700'"
+                                        class="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                                        role="switch"
+                                        :aria-checked="settings[section][key] === 'yes'">
+                                    <span :class="settings[section][key] === 'yes' ? 'translate-x-5' : 'translate-x-0'"
+                                          class="pointer-events-none relative inline-block h-6 w-6 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out">
+                                    </span>
+                                </button>
+                            </template>
+                            <template x-if="!isBool(settings[section][key])">
+                                <input type="text"
+                                       :value="settings[section][key]"
+                                       @input="settings[section][key] = $event.target.value; dirty = true"
+                                       placeholder="(empty)"
+                                       class="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition-all duration-200"
+                                       :class="isNumeric(settings[section][key]) ? 'font-mono' : ''">
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <template x-if="!settings[section] || Object.keys(settings[section]).length === 0">
+                    <div class="px-5 py-8 text-center">
+                        <p class="text-sm text-gray-400 dark:text-gray-500">No settings configured for this section.</p>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+</div>
+
+<script>
+function settingsPage() {
+    const configData = {{ config_json|safe }};
+    const sectionOrder = {{ sections|tojson }};
+    const commentsData = {{ comments|tojson }};
+
+    return {
+        activeSection: sectionOrder[0] || 'pdfgrabber',
+        dirty: false,
+        saving: false,
+        settings: configData,
+        sectionOrder: sectionOrder,
+        isBool(val) {
+            const v = String(val).toLowerCase().trim();
+            return v === 'yes' || v === 'no' || v === 'true' || v === 'false';
+        },
+        isNumeric(val) {
+            return /^[0-9]+\.?[0-9]*$/.test(String(val).trim());
+        },
+        toggleBool(section, key) {
+            const current = this.settings[section][key];
+            this.settings[section][key] = (current === 'yes' || current === 'true') ? 'no' : 'yes';
+            this.dirty = true;
+        },
+        getComment(section, key) {
+            return (commentsData[section] && commentsData[section][key]) || null;
+        },
+        async saveAll() {
+            this.saving = true;
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.settings)
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    this.dirty = false;
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'success', message: 'Settings saved successfully' }
+                    }));
+                } else {
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { type: 'error', message: data.error || 'Failed to save settings' }
+                    }));
+                }
+            } catch (e) {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'error', message: 'Network error: ' + e.message }
+                }));
+            } finally {
+                this.saving = false;
+            }
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "layouts/base.html" %}
+
+{% block header_left %}
+<h1 class="text-lg font-semibold">Downloads</h1>
+{% endblock %}
+
+{% block content %}
+<div x-data="downloadsPage()" x-cloak>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 animate-fade-up">
+        <div class="flex items-center gap-4 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div class="w-11 h-11 rounded-xl bg-brand-50 dark:bg-brand-950/50 flex items-center justify-center ring-1 ring-brand-200/50 dark:ring-brand-800/50">
+                <svg class="w-5 h-5 text-brand-600 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ books|length }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Total Books</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div class="w-11 h-11 rounded-xl bg-green-50 dark:bg-green-950/50 flex items-center justify-center ring-1 ring-green-200/50 dark:ring-green-800/50">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ total_pages }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Total Pages</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <div class="w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center ring-1 ring-amber-200/50 dark:ring-amber-800/50">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div>
+                <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ service_count }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">Services Used</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & filters -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 animate-fade-up-delay-1">
+        <div class="relative w-full sm:w-80">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input x-model="search" type="text" placeholder="Search by title, service, or ID..."
+                   class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition-all duration-200">
+        </div>
+        <div class="flex items-center gap-3">
+            <select x-model="serviceFilter"
+                    class="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500/40 focus:border-brand-500 transition-all duration-200 cursor-pointer">
+                <option value="">All services</option>
+                {% for svc in service_list %}
+                <option value="{{ svc }}">{{ svc|upper }}</option>
+                {% endfor %}
+            </select>
+            <span class="text-sm text-gray-500 dark:text-gray-400">
+                <span x-text="filteredCount"></span> results
+            </span>
+        </div>
+    </div>
+
+    {% if books|length == 0 %}
+    <div class="flex flex-col items-center justify-center py-20 text-center animate-fade-up-delay-2">
+        <div class="w-20 h-20 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-6">
+            <svg class="w-10 h-10 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.25" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H7a2 2 0 00-2 2v2M7 7h10"/></svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">No downloads yet</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 max-w-md mb-6">Head over to a service library and download some books to see them here.</p>
+        <a href="/" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium transition-colors shadow-md shadow-brand-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1"/></svg>
+            Browse Services
+        </a>
+    </div>
+    {% else %}
+    <div class="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden animate-fade-up-delay-2">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead>
+                    <tr class="border-b border-gray-100 dark:border-gray-800">
+                        <th class="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">Title</th>
+                        <th class="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">Service</th>
+                        <th class="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">Book ID</th>
+                        <th class="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600 text-right">Pages</th>
+                        <th class="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600">Path</th>
+                        <th class="px-5 py-3.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-600 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+                    {% for book in books %}
+                    <tr x-show="matchesSearch({{ book.title|tojson }}, {{ book.service|tojson }}, {{ book.bookid|tojson }})"
+                        class="group hover:bg-gray-50/80 dark:hover:bg-gray-800/30 transition-colors">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-10 rounded-md bg-gradient-to-br from-brand-100 to-brand-50 dark:from-brand-900/40 dark:to-brand-950/40 flex items-center justify-center flex-shrink-0 ring-1 ring-brand-200/30 dark:ring-brand-800/30">
+                                    <svg class="w-4 h-4 text-brand-500/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                </div>
+                                <span class="font-medium text-gray-900 dark:text-gray-100 truncate max-w-[260px]">{{ book.title }}</span>
+                            </div>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold uppercase tracking-wide bg-brand-50 dark:bg-brand-950/50 text-brand-600 dark:text-brand-400 ring-1 ring-brand-200/50 dark:ring-brand-800/50">
+                                {{ book.service }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="font-mono text-xs text-gray-400 dark:text-gray-500">{{ book.bookid }}</span>
+                        </td>
+                        <td class="px-5 py-4 text-right">
+                            <span class="font-mono text-xs text-gray-600 dark:text-gray-300">{{ book.pages }}</span>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="font-mono text-xs text-gray-400 dark:text-gray-500 truncate max-w-[200px] block" title="{{ book.path }}">{{ book.path }}</span>
+                        </td>
+                        <td class="px-5 py-4 text-right">
+                            <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                                <a href="/file/{{ book.service }}/{{ book.bookid }}" target="_blank"
+                                   class="p-2 rounded-lg text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/50 transition-all"
+                                   title="Open PDF">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </a>
+                                <button @click="copyPath({{ book.path|tojson }})"
+                                        class="p-2 rounded-lg text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-950/50 transition-all"
+                                        title="Copy path">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <template x-if="filteredCount === 0">
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+            <div class="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">No downloads match your filters</p>
+            <button @click="search = ''; serviceFilter = ''" class="mt-2 text-xs text-brand-600 dark:text-brand-400 hover:underline">Clear filters</button>
+        </div>
+    </template>
+    {% endif %}
+</div>
+
+<script>
+function downloadsPage() {
+    const allBooks = {{ books_json|safe }};
+    return {
+        search: '',
+        serviceFilter: '',
+        get filteredCount() {
+            return allBooks.filter(b => this._matches(b)).length;
+        },
+        _matches(b) {
+            if (this.serviceFilter && b.service !== this.serviceFilter) return false;
+            if (!this.search.trim()) return true;
+            const q = this.search.toLowerCase();
+            return b.title.toLowerCase().includes(q) ||
+                   b.service.toLowerCase().includes(q) ||
+                   b.bookid.toLowerCase().includes(q);
+        },
+        matchesSearch(title, service, bookid) {
+            if (this.serviceFilter && service !== this.serviceFilter) return false;
+            if (!this.search.trim()) return true;
+            const q = this.search.toLowerCase();
+            return title.toLowerCase().includes(q) ||
+                   service.toLowerCase().includes(q) ||
+                   bookid.toLowerCase().includes(q);
+        },
+        copyPath(path) {
+            navigator.clipboard.writeText(path).then(() => {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { type: 'success', message: 'Path copied to clipboard' }
+                }));
+            });
+        }
+    }
+}
+</script>
+{% endblock %}
