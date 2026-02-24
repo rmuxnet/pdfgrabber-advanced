@@ -1,12 +1,10 @@
 from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import unpad
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA256
-from base64 import b64encode, b64decode
+from base64 import b64encode
 #import xml.etree.ElementTree as et
 from lxml import etree as et
 from zipfile import ZipFile
-from io import BytesIO
 import tempfile
 import time
 import requests

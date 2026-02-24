@@ -13,7 +13,6 @@ from playwright.sync_api import sync_playwright
 from tempfile import TemporaryDirectory
 from .. import lib
 import json
-import re
 from .. import config
 
 service = "cng"
@@ -179,7 +178,6 @@ def downloadhtml5(token, data, progress):
 	progress(4, "Downloading zip")
 	bookzip = ZipFile(BytesIO(downloadfile(zipurl, progress, 40, 4)))
 
-	incr = 0
 	def linearize(p, level, r):
 		s = r
 		pages = []

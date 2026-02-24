@@ -1,6 +1,5 @@
 import requests
 from hashlib import md5
-from io import BytesIO
 import fitz
 import json
 from base64 import b64decode

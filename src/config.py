@@ -1,6 +1,5 @@
 import configparser
 from pathlib import Path
-import os
 import shutil
 
 # os.chdir(Path(__file__).parent) # Removed in refactor
@@ -10,5 +9,5 @@ def getconfig():
 	conffile = Path("config.ini")
 	if not conffile.is_file():
 		shutil.copyfile(Path("config-default.ini"), conffile)
-	config.read_file(open(conffile))
+	config.read(conffile)
 	return config

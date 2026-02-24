@@ -3,7 +3,6 @@ from Crypto.Cipher import DES3
 from Crypto.Util.Padding import unpad
 from zipfile import ZipFile
 import json
-from base64 import b64decode, b64encode
 import fitz
 import tempfile
 

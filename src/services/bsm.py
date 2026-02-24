@@ -14,7 +14,7 @@ key = bytes.fromhex("1e00b89873139d2104ed501a8bf8689b")
 
 bsmart_baseurl = "https://www.bsmart.it"
 
-config = config.getconfig()
+conf = config.getconfig()
 
 def getlogindata(username, password, baseurl):
 	r = requests.post(baseurl + "/api/v5/session", data={"password": password, "email": username})
@@ -78,7 +78,7 @@ def library(token, baseurl=bsmart_baseurl, service=service):
 			pass
 		books[str(i["id"])] = {"title": i["title"], "revision": i["current_edition"]["revision"], "cover": i["cover"]}
 
-	if config.getboolean(service, "Preactivations", fallback=True):
+	if conf.getboolean(service, "Preactivations", fallback=True):
 		for i in getpreactivations(token, baseurl):
 			for book in i["books"]:
 				if book["liquid_text"]:

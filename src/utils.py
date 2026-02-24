@@ -4,12 +4,6 @@ from tinydb import TinyDB, Query
 from hashlib import sha256
 from pathlib import Path
 import os
-import importlib
-import fitz
-from tinydb import TinyDB, Query
-from hashlib import sha256
-from pathlib import Path
-import os
 from . import config
 
 # os.chdir(Path(__file__).parent) # Removed in refactor
@@ -47,8 +41,6 @@ def downloadbook(servicename, token, bookid, data, progress):
 	
 	pdf = service.downloadbook(token, bookid, data, progress)
 	pdfnow = fitz.get_pdf_now()
-
-	author = config.get(servicename, "Author", fallback="none")
 
 	metadata = {'producer': "PyMuPDF " + fitz.version[0], 'format': 'PDF 1.7', 'encryption': None, 'author': 'none', 'modDate': pdfnow, 'keywords': 'none', 'title': data["title"], 'creationDate': pdfnow, 'creator': "pdfgrabber1.0", 'subject': 'none'}
 	pdf.set_metadata(metadata)

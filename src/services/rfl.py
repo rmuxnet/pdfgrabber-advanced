@@ -1,4 +1,3 @@
-import json
 import requests
 from Crypto.Cipher import AES
 from base64 import b64encode, b64decode
@@ -82,11 +81,7 @@ def library(token):
 				books[str(j["id"])]["cover"] = j["cover"]
 	return books
 
-def cover(token, bookid, data):
-	if "cover" in data:
-		return getcover(url)
-	else:
-		return b""
+
 
 def downloadbook(token, bookid, data, progress):
 	pdf = fitz.Document()

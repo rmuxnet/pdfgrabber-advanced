@@ -10,7 +10,9 @@ from io import BytesIO
 import xml.etree.ElementTree as et
 from pathlib import Path
 from playwright.sync_api import sync_playwright
-import json
+import gzip
+import re
+import fitz
 from .. import lib
 from .. import config
 

@@ -7,8 +7,6 @@ urlmatch = r"https?://mydbook\.giuntitvp\.it/app/(?:(collections)/(\w+)|(books)/
 
 def downloadbook(url, progress):
 	pdf = fitz.Document()
-	toc = []
-	labels = []
 
 	s = requests.Session()
 	s.post("https://mydbook.giuntitvp.it/login", params={"type": "normal"}, json={"ut": "public@mydbook.giuntitvp.it", "pw": "public"})
@@ -55,10 +53,4 @@ def downloadbook(url, progress):
 		print("Unable to view this publicly. Aborting...")
 		exit()
 
-	'''	
-	progress(98, "Applying toc/labels")
-	if labels:
-		pdf.set_page_labels(lib.generatelabelsrule(labels))
-	pdf.set_toc(toc)
-	'''
 	return pdf, bookid, title

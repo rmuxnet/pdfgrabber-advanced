@@ -1,9 +1,6 @@
 from Crypto.Hash import SHA512
 from Crypto.Random import get_random_bytes
-from lxml import etree as et
-import fitz
 import requests
-from zipfile import ZipFile
 import services.olb as olb
 from .. import config
 

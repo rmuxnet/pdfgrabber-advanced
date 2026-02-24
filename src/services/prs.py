@@ -120,7 +120,6 @@ def getrsakey(key):
 
 def computexsignature(devicephrase, signatureddk):
 	rsakey = getrsakey(signatureddk)
-	message = devicephrase.encode()
 	sha = SHA256.new()
 	sha.update(devicephrase.encode())
 

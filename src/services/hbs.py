@@ -36,7 +36,7 @@ def downloadzip(token, bookid, progress, total, done, chapterid="publication"):
 		progress(round(done + len(file) / length * total))
 	try:
 		res = zipfile.ZipFile(BytesIO(file), "r")
-	except zipfile.BadZipFile as e:
+	except zipfile.BadZipFile:
 		print(f"Error downloading {chapterid}: {file.decode(errors='ignore')}")
 		res = None
 	return res

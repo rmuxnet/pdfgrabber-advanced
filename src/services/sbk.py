@@ -2,7 +2,6 @@ import requests
 import xml.etree.ElementTree as et
 from hashlib import md5
 from Crypto.Random import get_random_bytes
-from io import BytesIO
 import re
 import fitz
 from .. import lib

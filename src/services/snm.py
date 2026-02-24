@@ -113,7 +113,6 @@ def parsestructure(mobj):
 			return min([order(i) for i in children[objid]] + [len(pageidtolabel) + 1])
 
 	def generatetoc(ch, level):
-		global tot
 		ch.sort(key=order)
 		for i in ch:
 			if i in pageidtolabel:

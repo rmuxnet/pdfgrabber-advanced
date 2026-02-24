@@ -88,7 +88,6 @@ def managetokens():
 	console.print(Panel(f"Token for [bold]{servicenow}[/bold] deleted!", style="green", title="Success"))
 
 def downloadbook():
-	global userid
 	if not userid:
 		login()
 
@@ -146,7 +145,7 @@ def downloadbook():
 	downloadcovers = config.getboolean(service, "Cover", fallback=False)
 	for (i, (bid, book)) in enumerate(books.items()):
 		if downloadcovers:
-			coverpath = utils.cover(service, token, bid, book)
+			utils.cover(service, token, bid, book)
 		table.add_row(str(i), bid, book['title'])
 		id2bookid.append(bid)
 
